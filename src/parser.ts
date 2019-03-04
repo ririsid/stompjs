@@ -1,6 +1,27 @@
 import {IRawFrameType} from './types';
 
 /**
+ * Create a new TypedArray with a new ArrayBuffer, but you can't change the size of an existing buffer.
+ * @see {@link https://stackoverflow.com/a/33703102}
+ */
+function concatTypedArrays(a: Uint8Array, b: Uint8Array): Uint8Array {
+  var c = new Uint8Array(a.length + b.length);
+  c.set(a, 0);
+  c.set(b, a.length);
+  return c;
+}
+
+/**
+ * Concatenate bytes.
+ * @see {@link https://stackoverflow.com/a/33703102}
+ */
+function concatBytes(ui8a: Uint8Array, byte: number): Uint8Array {
+  var b = new Uint8Array(1);
+  b[0] = byte;
+  return concatTypedArrays(ui8a, b);
+}
+
+/**
  * @internal
  */
 const NULL = 0;
@@ -82,6 +103,13 @@ export class Parser {
       chunk = new Uint8Array(segment);
     } else {
       chunk = this._encoder.encode(segment);
+    }
+
+    if (chunk.length > 0) {
+      const last = chunk[chunk.length - 1];
+      if (last !== NULL) {
+        chunk = concatBytes(chunk, NULL);
+      }
     }
 
     // tslint:disable-next-line:prefer-for-of

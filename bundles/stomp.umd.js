@@ -1326,6 +1326,25 @@ __export(__webpack_require__(/*! ./compatibility/stomp */ "./src/compatibility/s
 
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
+ * Create a new TypedArray with a new ArrayBuffer, but you can't change the size of an existing buffer.
+ * @see {@link https://stackoverflow.com/a/33703102}
+ */
+function concatTypedArrays(a, b) {
+    var c = new Uint8Array(a.length + b.length);
+    c.set(a, 0);
+    c.set(b, a.length);
+    return c;
+}
+/**
+ * Concatenate bytes.
+ * @see {@link https://stackoverflow.com/a/33703102}
+ */
+function concatBytes(ui8a, byte) {
+    var b = new Uint8Array(1);
+    b[0] = byte;
+    return concatTypedArrays(ui8a, b);
+}
+/**
  * @internal
  */
 var NULL = 0;
@@ -1399,6 +1418,12 @@ var Parser = /** @class */ (function () {
         }
         else {
             chunk = this._encoder.encode(segment);
+        }
+        if (chunk.length > 0) {
+            var last = chunk[chunk.length - 1];
+            if (last !== NULL) {
+                chunk = concatBytes(chunk, NULL);
+            }
         }
         // tslint:disable-next-line:prefer-for-of
         for (var i = 0; i < chunk.length; i++) {
@@ -2033,7 +2058,7 @@ exports.Versions = Versions;
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /Users/kdeepak/MyWork/Tech/stomp/stompjs/src/index.ts */"./src/index.ts");
+module.exports = __webpack_require__(/*! /Users/jay/Developer/stompjs/src/index.ts */"./src/index.ts");
 
 
 /***/ })
